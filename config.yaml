@@ -1,0 +1,17 @@
+game:
+  mode: 0
+
+counter:
+  persist: 2
+
+intervals:
+  time_persist: 1
+  btn_delay: 5
+  btn_long_delay: 8
+  farm_time: 12
+
+percents:
+    confidence: 0.65
+
+map:
+  reside: 2

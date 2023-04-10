@@ -11,7 +11,7 @@ intervals:
   farm_time: 12
 
 percents:
-    confidence: 0.65
+    confidence: 0.85
 
 map:
   reside: 2

@@ -11,22 +11,26 @@ class Actions:
         self.long_delay = config[3]
         self.confidence = config[4]
 
-    def reduceImage(self, target, confidence):
+    def reduceImage(self, target, confidence, group=False):
         im = Image.open(f"images/{target}.png")
         width, height = im.size
         for i in range(100, 20, -5):
             im1 = im.resize((int(width * (i / 100)), int(height * (i / 100))))
-            _click = pyautogui.locateCenterOnScreen(im1, confidence=confidence,
+            if (not group):
+                _click = pyautogui.locateCenterOnScreen(im1, confidence=confidence,
                                                     region=self.region)
-            if _click is not None:
+            else:
+                _click = list(pyautogui.locateAllOnScreen(im1, confidence=self.confidence,
+                                                    region=self.region))
+            if (_click is not None) or (_click is not []):
                 return _click
 
-    def searchTarget(self, target, confidence):
+    def searchTarget(self, target, confidence, group=False):
         t0 = time.time()
         for i in range(self.persist):
             time.sleep(0.2)
             print(f"Procurando {target}")
-            _click = self.reduceImage(target, confidence)
+            _click = self.reduceImage(target, confidence, group=group)
             if _click is not None:
                 #print(_click)
                 break
@@ -64,11 +68,9 @@ class Actions:
         pyautogui.dragTo(pos1[0], pos1[1], button='left')
         print("Moveu peça!")
 
-    def groupByElements(self, target):
-        #código para agrupar os elementos iguais]
-        elements = list(pyautogui.locateAllOnScreen(f'images/{target}.png',
-                                                confidence=self.confidence,
-                                                region=self.region))
+    def groupByElements(self, target, confidence=None):
+        if confidence is None: confidence = self.confidence
+        elements = self.searchTarget(target, confidence, group=True)
         return elements
 
     def selectRandonElement(self):

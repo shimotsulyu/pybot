@@ -19,28 +19,29 @@ class Actions:
             if (not group):
                 _click = pyautogui.locateCenterOnScreen(im1, confidence=confidence,
                                                     region=self.region)
+                _box = pyautogui.locateOnScreen(im1, confidence=confidence,
+                                                    region=self.region)
             else:
                 _click = list(pyautogui.locateAllOnScreen(im1, confidence=self.confidence,
                                                     region=self.region))
             if (_click is not None) or (_click is not []):
-                return _click
+                return _click, _box
 
-    def searchTarget(self, target, confidence, group=False):
-        t0 = time.time()
+    def searchTarget(self, target, confidence=None, group=False):
+        if confidence is None: confidence = self.confidence
         for i in range(self.persist):
             time.sleep(0.2)
             print(f"Procurando {target}")
-            _click = self.reduceImage(target, confidence, group=group)
+            _click, _box = self.reduceImage(target, confidence, group=group)
             if _click is not None:
-                #print(_click)
                 break
             time.sleep(self.delay)
-        #print(f"dt: {time.time()-t0}s")
-        return _click
+        print(_click, _box)
+        return _click, _box
 
     def oneClick(self, target, confidence=None, stopOnFail=True):
         if confidence is None: confidence = self.confidence
-        _click = self.searchTarget(target,confidence)
+        _click = self.searchTarget(target,confidence)[0]
         if _click is not None:
             pyautogui.click(_click)
             print(f"  Clicou! {_click}")
@@ -51,7 +52,7 @@ class Actions:
 
     def doubleClick(self, target, confidence=None, stopOnFail=True):
         if confidence is None: confidence = self.confidence
-        _click = self.searchTarget(target,confidence)
+        _click = self.searchTarget(target,confidence)[0]
         if _click is not None:
             pyautogui.doubleClick(_click)
             print(f"  Clicou! {_click}")

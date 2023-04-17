@@ -1,7 +1,7 @@
 import pyautogui
 from PIL import Image
 import time
-
+import math
 class Actions:
     def __init__(self, config=[10, 1, 4, 8, 0.9], region=(0, 0, pyautogui.size()[0], pyautogui.size()[1])):
         self.region = region
@@ -22,10 +22,12 @@ class Actions:
                 _box = pyautogui.locateOnScreen(im1, confidence=confidence,
                                                     region=self.region)
             else:
-                _click = list(pyautogui.locateAllOnScreen(im1, confidence=self.confidence,
+                _click = None
+                _box = list(pyautogui.locateAllOnScreen(im1, confidence=self.confidence,
                                                     region=self.region))
             if (_click is not None) or (_click is not []):
                 return _click, _box
+        return None
 
     def searchTarget(self, target, confidence=None, group=False):
         if confidence is None: confidence = self.confidence
@@ -36,7 +38,6 @@ class Actions:
             if _click is not None:
                 break
             time.sleep(self.delay)
-        print(_click, _box)
         return _click, _box
 
     def oneClick(self, target, confidence=None, stopOnFail=True):
@@ -61,19 +62,33 @@ class Actions:
             print("Não econtrou!")
             return False
 
-    #def hotKey(self, key):
-        #pyautogui.hotkey(key)
-
     def drag(self, pos0, pos1, stopOnFail=True):
         pyautogui.moveTo(pos0[0], pos0[1])
         pyautogui.dragTo(pos1[0], pos1[1], button='left')
         print("Moveu peça!")
 
+    def checkNotOverlapping(self,im1,im2):
+        print(math.fmod(im1[0],im2[0]) > im2[2] or math.fmod(im1[1],im2[1]) > im2[3])
+        return math.fmod(im1[0],im2[0]) > im2[2] or math.fmod(im1[1],im2[1]) > im2[3]
+
     def groupByElements(self, target, confidence=None):
         if confidence is None: confidence = self.confidence
-        elements = self.searchTarget(target, confidence, group=True)
-        return elements
+        teste = list(pyautogui.locateAllOnScreen(f'images/{target}.png', confidence=self.confidence,
+                                         region=self.region))
+        new_teste = [teste[0]]
+        for i in teste:
+            for j in new_teste:
+                self.checkNotOverlapping(i,j)
+            #print('-----------------------',i)
+            #print(new_teste)
+            print('-----------------------------------------------')
+            #if not_in: new_teste.append(i)
+        print(len(new_teste),new_teste)
+        #elements = self.searchTarget(target, confidence, group=True)
+        #print(len(elements[1]),elements[1])
+        #return elements
 
     def selectRandonElement(self):
         #seleciona um elemento
         return [0,0]
+

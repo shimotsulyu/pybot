@@ -41,6 +41,7 @@ class Actions:
         return _click, _box
 
     def oneClick(self, target, confidence=None, stopOnFail=True):
+        if target == 'Invalid input': return False
         if confidence is None: confidence = self.confidence
         _click = self.searchTarget(target,confidence)[0]
         if _click is not None:
@@ -67,28 +68,25 @@ class Actions:
         pyautogui.dragTo(pos1[0], pos1[1], button='left')
         print("Moveu peça!")
 
-    def checkNotOverlapping(self,im1,im2):
-        print(math.fmod(im1[0],im2[0]) > im2[2] or math.fmod(im1[1],im2[1]) > im2[3])
-        return math.fmod(im1[0],im2[0]) > im2[2] or math.fmod(im1[1],im2[1]) > im2[3]
+    def checkNotOverlapping(self,img,imgRef):
+        return math.sqrt((img[0]-imgRef[0])**2) > imgRef[2] or math.sqrt((img[1]-imgRef[1])**2) > imgRef[3]
+
+    def checkNotOnList(self,list,img):
+        for imgRef in list:
+            if not self.checkNotOverlapping(img,imgRef): return False
+        return True
 
     def groupByElements(self, target, confidence=None):
         if confidence is None: confidence = self.confidence
-        teste = list(pyautogui.locateAllOnScreen(f'images/{target}.png', confidence=self.confidence,
+        element_found = list(pyautogui.locateAllOnScreen(f'images/{target}.png', confidence=confidence,
                                          region=self.region))
-        new_teste = [teste[0]]
-        for i in teste:
-            for j in new_teste:
-                self.checkNotOverlapping(i,j)
-            #print('-----------------------',i)
-            #print(new_teste)
-            print('-----------------------------------------------')
-            #if not_in: new_teste.append(i)
-        print(len(new_teste),new_teste)
-        #elements = self.searchTarget(target, confidence, group=True)
-        #print(len(elements[1]),elements[1])
-        #return elements
+        elements = [element_found[0]]
+        for img in element_found:
+            if self.checkNotOnList(elements,img): elements.append(img)
+        return elements
 
     def selectRandonElement(self):
         #seleciona um elemento
         return [0,0]
+
 
